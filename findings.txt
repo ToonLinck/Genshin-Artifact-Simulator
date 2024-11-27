@@ -1,0 +1,5 @@
+Ratio of on Set, double crit pieces / crit circlets with other crit stat as substat: ~4.34% of Artifacts (Only Domain)
+No. of Domain Runs: 500000
+No. of Artifacts: 532530
+No. of double Crit Artifacts: 21701
+Ratio: 4.3402%
