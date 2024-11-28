@@ -1,9 +1,10 @@
+import const as const
 import numpy as np
 from collections import Counter
 
 rand = np.random.default_rng()
-DOMAIN = 'Domain'
-STRONGBOX = 'Strongbox'
+DOMAIN = const.ARTIFACT_SOURCE.DOMAIN
+STRONGBOX = const.ARTIFACT_SOURCE.STRONGBOX
 
 SET = 'Set'
 SLOT = 'Slot'
@@ -14,22 +15,27 @@ ROLLS = 'Rolls'
 ROLL_LEVEL = 'Roll Level'
 WANTED = 'Wanted'
 
-slots = ['Flower', 'Feather', 'Sands', 'Goblet', 'Circlet']
-main_stat_probabilities = {
-    'Flower': {'HP': 1},
-    'Feather': {'ATK': 1},
-    'Sands': {'HP%': 0.2668, 'ATK%': 0.2666, 'DEF%': 0.2666, 'ER': 0.1, 'EM': 0.1},
-    'Goblet': {'HP%': 0.1925, 'ATK%': 0.1925, 'DEF%': 0.19, 'Pyro': 0.05, 'Electro': 0.05, 'Cryo': 0.05,
-               'Hydro': 0.05, 'Dendro': 0.05, 'Anemo': 0.05, 'Geo': 0.05, 'Physical': 0.05, 'EM': 0.025},
-    'Circlet': {'HP%': 0.22, 'ATK%': 0.22, 'DEF%': 0.22, 'CR': 0.1, 'CD': 0.1, 'Healing': 0.1, 'EM': 0.04}
-}
-num_of_substats_probabilities = {
-    'Domain': {3: 0.8, 4: 0.2},
-    'Strongbox': {3: 0.66, 4: 0.34}
-}
-substats_weights = {'HP': 6, 'ATK': 6, 'DEF': 6, 'HP%': 4, 'ATK%': 4, 'DEF%': 4, 'ER': 4, 'EM': 4, 'CR': 3, 'CD': 3}
-substat_max_rolls = {'HP': 298.75, 'ATK': 19.45, 'DEF': 23.15, 'HP%': 5.83, 'ATK%': 5.83, 'DEF%': 7.29, 'EM': 23.31,
-                     'ER': 6.48, 'CR': 3.89, 'CD': 7.77}
+
+
+
+
+
+class substat:
+    
+
+    def __init__(self,stat:const.SUBMAIN_STATS_NAMES,):
+        self.stat = stat
+
+
+class Artifact:
+
+    def __init__(self,set:str , slot:str , main_stat, sub_stats):
+        self.set = set
+        self.slot = slot
+        self.main_stat = main_stat
+        self.sub_stats = sub_stats
+
+    pass
 
 def generate_substats(artifact: dict):
     main_stat = artifact.get(MAIN_STAT)
@@ -38,9 +44,9 @@ def generate_substats(artifact: dict):
     roll_level = artifact.get(ROLL_LEVEL)
 
     for i in range(4):
-        remaining_substats = [key for key in substats_weights if key not in substats and key != main_stat]
-        substat_key_sum = sum(substats_weights[key] for key in remaining_substats)
-        substat_probabilities = [substats_weights[key] / substat_key_sum for key in remaining_substats]
+        remaining_substats = [key for key in const.SUBSTAT_WEIGHTS if key not in substats and key != main_stat]
+        substat_key_sum = sum(const.SUBSTAT_WEIGHTS[key] for key in remaining_substats)
+        substat_probabilities = [const.SUBSTAT_WEIGHTS[key] / substat_key_sum for key in remaining_substats]
         generated_substat = rand.choice(remaining_substats, p=substat_probabilities)
         substats.append(generated_substat)
         rolls.append(i+1)
@@ -49,9 +55,9 @@ def generate_substats(artifact: dict):
 def roll_substat() -> float:
     return rand.choice([0.7, 0.8, 0.9, 1])
 
-def select_main_stat(slot: str) -> str:
-    probabilities = main_stat_probabilities[slot]
-    return rand.choice(list(probabilities.keys()), p=list(probabilities.values()))
+def select_main_stat(slot):
+    probabilities = const.MAIN_STAT_PROBABILITY[slot]
+    return rand.choice(list(probabilities), p=list(probabilities.values()))
 
 def check_wanted(current, wanted):
     if wanted is not None and current != wanted:
@@ -69,11 +75,11 @@ def generate_artifact(source: str, wanted:dict = None) -> dict:
     roll_level_wanted = wanted.get(ROLL_LEVEL)
 
     artifact = {
-        SET: 1 if source == 'Strongbox' else rand.choice([0, 1]),
-        SLOT: rand.choice(slots),
+        SET: 1 if source == const.ARTIFACT_SOURCE.STRONGBOX else rand.choice([1,2]),
+        SLOT: rand.choice(const.SLOTS),
         MAIN_STAT: '',
-        STARTING_SUBSTATS: rand.choice(list(num_of_substats_probabilities[source].keys()),
-                                       p=list(num_of_substats_probabilities[source].values())),
+        STARTING_SUBSTATS: rand.choice(list(const.NUM_OF_SUBSTATS_PROBABILITIES[source].keys()),
+                                       p=list(const.NUM_OF_SUBSTATS_PROBABILITIES[source].values())),
         SUBSTATS: [],
         ROLLS: [],
         ROLL_LEVEL: [],
@@ -104,7 +110,7 @@ def calculate_roll_values(artifact: dict) -> list:
     flat_stats = {'HP', 'ATK', 'DEF', 'EM'}
     for roll, roll_level in zip(artifact[ROLLS], artifact[ROLL_LEVEL]):
         substat = artifact[SUBSTATS][roll - 1]
-        max_value = substat_max_rolls[substat]
+        max_value = const.SUBSTAT_MAX_ROLLS[substat]
         final_roll_values[roll-1] += max_value * roll_level
     for index, substat in enumerate(artifact[SUBSTATS]):
         if substat in flat_stats:

@@ -1,7 +1,7 @@
 import Artifact_Generator as artGen
 
-DOMAIN = 'Domain'
-STRONGBOX = 'Strongbox'
+DOMAIN = 'DOMAIN'
+STRONGBOX = 'STRONGBOX'
 
 domain_runs = 5000
 artifact_count = 0
